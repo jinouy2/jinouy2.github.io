@@ -1,50 +1,71 @@
-<!DOCTYPE html>
-
-
 
 <html>
+
 <script src='https://d3js.org/d3.v5.min.js'></script>
+
 <body onload='init()'>
-
-<h1>Weekly number of deaths</h1>
-<p>Comparing deaths count including vs. excluding COVID-19</p>
-<svg width=1920 height=1080>
-</svg>
+<div id="sheet1"></div>
 <script>
-
-
-
 async function init() {
-
-  const data = await d3.csv(
-    "../Excess_Deaths_Associated_with_COVID-19.csv");
-
-  var margin = {top: 50, right: 50, bottom: 50, left: 50}
-  , width = window.innerWidth - margin.left - margin.right 
-  , height = window.innerHeight - margin.top - margin.bottom; 
-
-  var x = d3.scaleLinear().domain([0,51]).range([0,width])
-  var y = d3.scaleLinear().domain([400000,800000]).range([height,0])
-
-
-  d3.select("svg")
-    .append("g")
-     .attr("transform","translate(" + margin.left + "," + margin.top + ")")
-    .selectAll("path")
-    .data(data)
-    .enter()
-    .append("path")
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-     .attr("d",d3.line()
-     	.x(function(d) {return x(d.Week);})
-     	.y(function(d) {return y(d.Observed_Number);})
-
-
+	console.log("here");
 }
+
+
+
+// // set the dimensions and margins of the graph
+// var margin = {top: 10, right: 30, bottom: 30, left: 60},
+//     width = window.width - margin.left - margin.right,
+//     height = window.height - margin.top - margin.bottom;
+
+// // append the svg object to the body of the page
+// var svg = d3.select("#sheet1")
+//   .append("svg")
+//     .attr("width", width + margin.left + margin.right)
+//     .attr("height", height + margin.top + margin.bottom)
+//   .append("g")
+//     .attr("transform",
+//           "translate(" + margin.left + "," + margin.top + ")");
+
+// //Read the data
+// d3.csv("https://raw.githubusercontent.com/jinouy2/jinouy2.github.io/master/data/Excess_Deaths_Associated_with_COVID-19.csv",
+
+//   // When reading the csv, I must format variables:
+//   function(d){
+//     return { Week : d.Week, Observed_Number : d.Observed_Number }
+//   },
+
+//   // Now I can use this dataset:
+//   function(data) {
+
+//     // Add X axis --> it is a date format
+//     var x = d3.scaleLinear()
+//       .domain([0,52])
+//       .range([ 0, width ]);
+//     svg.append("g")
+//       .attr("transform", "translate(0," + height + ")")
+//       .call(d3.axisBottom(x));
+
+//     // Add Y axis
+//     var y = d3.scaleLinear()
+//       .domain([0, d3.max(data, function(d) { return +d.Observed_Number; })])
+//       .range([ height, 0 ]);
+//     svg.append("g")
+//       .call(d3.axisLeft(y));
+
+//     // Add the line
+//     svg.append("path")
+//       .datum(data)
+//       .attr("fill", "none")
+//       .attr("stroke", "steelblue")
+//       .attr("stroke-width", 1.5)
+//       .attr("d", d3.line()
+//         .x(function(d) { return x(d.Week) })
+//         .y(function(d) { return y(d.Observed_Number) })
+//         )
+
+// })
+
 </script>
 </body>
 </html>
-
 
