@@ -55,16 +55,16 @@
 </div>
 
 <div id='scene2017' class='tabcontent'>
-	<svg id='svg2017' width=900 height=600 ></svg>
+	<svg id='svg2017' width=900 height=550 ></svg>
 </div>
 <div id='scene2018' class='tabcontent'>
-	<svg id='svg2018' width=900 height=600 ></svg>
+	<svg id='svg2018' width=900 height=550 ></svg>
 </div>
 <div id='scene2019' class='tabcontent'>
-	<svg id='svg2019' width=900 height=600 ></svg>
+	<svg id='svg2019' width=900 height=550 ></svg>
 </div>
 <div id='scene2020' class='tabcontent'>
-	<svg id='svg2020' width=900 height=600 ></svg>
+	<svg id='svg2020' width=900 height=550 ></svg>
 </div>
 
 <p> Data as of July 22nd, 2020.</p>
@@ -88,9 +88,9 @@ async function init(){
 function render2017(data){
 	
 	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 100, left: 100},
+	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	    height = 550 - margin.top - margin.bottom;
 
 	// clear svg content
 	d3.select('#svg2017').html = ""
@@ -149,9 +149,9 @@ function render2017(data){
 function render2018(data){
 	
 	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 100, left: 100},
+	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	    height = 550 - margin.top - margin.bottom;
 
 	//chart title
 	d3.select('#svg2018').append('text')
@@ -221,9 +221,9 @@ function render2018(data){
 function render2019(data){
 	
 	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 100, left: 100},
+	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	    height = 550 - margin.top - margin.bottom;
 
 	//chart title
 	d3.select('#svg2019').append('text')
@@ -305,9 +305,9 @@ function render2019(data){
 function render2020(data){
 	
 	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 100, left: 100},
+	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	    height = 550 - margin.top - margin.bottom;
 
 	//chart title
 	d3.select('#svg2020').append('text')
