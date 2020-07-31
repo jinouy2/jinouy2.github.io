@@ -42,6 +42,20 @@
 	  border-top: none;
 	}
 
+	/* style tooltip */
+	.tooltip {
+	  color: white;
+	  position: absolute;
+	  text-align: left;
+	  width: 150px;
+	  height: 30px;
+	  padding: 2px;
+	  font: 12px sans-serif;
+	  background: rgba(0,0,0,.8);
+	  border: 0px;
+	  pointer-events: none;
+	}
+
 	</style>
 </head>
 
@@ -67,6 +81,8 @@
 	<svg id='svg2020' width=900 height=550 ></svg>
 </div>
 
+<div id="tooltip"></div>
+
 <p> Data as of July 22nd, 2020.</p>
 
 <script>
@@ -74,6 +90,7 @@
 async function init(){
 	// data
 	const data = await d3.csv('https://raw.githubusercontent.com/jinouy2/jinouy2.github.io/master/data/Excess_Deaths_Associated_with_COVID-19.csv');
+	// const tooltipdata = await d3.
 	console.log(data.length);
 	console.log('Column headers', data.columns);
 	// draw chart of select year
@@ -86,7 +103,7 @@ async function init(){
 
 
 function render2017(data){
-	
+
 	// Set the dimensions of the canvas / graph
 	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
@@ -144,6 +161,21 @@ function render2017(data){
       .attr('d', d3.line()
 		.x(function(d) {return x(parseInt(d.Week)); }) 
 		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+
+	// Set tooltip
+	var tooltipdomain = [];
+	for (var i=0; i<52; i++){
+		tooltipdomain.push(i+1);
+	}
+	var xTooltip = d3.scaleBand().domain(tooltopdomain).range([0,width])
+	d3.select('#svg2017').append('g')
+	  .attr('transform','translate('+margin.left+','+margin.top+')')
+	  .selectAll('rect')
+	  .data(data)
+	  .enter()
+	  .append('rect')
+	    .attr('x', function(d))
+
 }
 
 function render2018(data){
@@ -308,6 +340,9 @@ function render2020(data){
 	var margin = {top: 100, right: 60, bottom: 80, left: 100},
 	    width = 900 - margin.left - margin.right,
 	    height = 550 - margin.top - margin.bottom;
+	
+	// Tooltip variable
+	var tooltip = d3.select("#tooltip");
 
 	//chart title
 	d3.select('#svg2020').append('text')
@@ -346,6 +381,15 @@ function render2020(data){
 	  .style('text-anchor','end')
 	  .text('Number of Deaths');
 
+
+	var data2020 = [];
+	for (var i=0; i < data.length; i++) {
+		var tmp = {};
+		if (data[i].Year == 2020 && data[i].Outcome == "All causes") {
+			data2020.push(data[i]);
+		}
+	}
+	// console.log(data2020);
 	// line with select Year and Outcome
     d3.select('#svg2020').append('g')
     .attr('transform','translate('+margin.left+','+margin.top+')')
@@ -410,6 +454,9 @@ function render2020(data){
       .attr('d', d3.line()
 		.x(function(d) {return x(parseInt(d.Week)); }) 
 		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+
+
+
 }
 
 function openSheet(evt, sheetName) {
