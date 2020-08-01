@@ -1,6 +1,7 @@
 <html>
    <head>
       <h2>United States: Weekly Number of Deaths Year 2017-20</h2>
+      <p>Maximize window size for optimal presentation. Click along year tabs to view. Data as of July 22, 2020.</p>
       <script src='https://d3js.org/d3.v5.min.js'></script>
       <style type="text/css">
          /* Style the tab */
@@ -16,9 +17,9 @@
          border: none;
          outline: none;
          cursor: pointer;
-         padding: 14px 16px;
+         padding: 10px 16px;
          transition: 0.3s;
-         font-size: 17px;
+         font-size: 16px;
          }
          /* Change background color of buttons on hover */
          .tab button:hover {
@@ -67,18 +68,48 @@
          <button class="tablinks" onclick="openSheet(event, 'scene2019')">2019</button>
          <button class="tablinks" onclick="openSheet(event, 'scene2020')">2020</button>
       </div>
+
       <div id='scene2017' class='tabcontent'>
+         <div style="display:flex; flex-direction: row; ">
          <svg id='svg2017' width=900 height=550 ></svg>
+         <div style="width: 300px;height: 550px;">
+            <p>Seasonality presented in a given year (i.e. 2017):</p>
+            <p>More deaths in winter and less in summer.</p>
+         </div>
       </div>
+      </div>
+
       <div id='scene2018' class='tabcontent'>
+         <div style="display:flex; flex-direction: row; ">
          <svg id='svg2018' width=900 height=550 ></svg>
+         <div style="width: 300px;height: 550px;">
+            <p>Similar seasonality was observed in 2018, which is highlighted in blue. Previous year(s) marked in grey for comparison. </p>
+            <P>Worse influenza season leaded to higher deaths count in 2018 winter, comparing to same period in 2017.</P>
+         </div>
       </div>
+      </div>
+
       <div id='scene2019' class='tabcontent'>
+         <div style="display:flex; flex-direction: row; ">
          <svg id='svg2019' width=900 height=550 ></svg>
+         <div style="width: 300px;height: 550px;">
+            <p>Seasonality observed in 2019 (highlighted in blue) as expected. Previous year(s) marked in grey for comparison. </p>
+         </div>
       </div>
+      </div>
+
       <div id='scene2020' class='tabcontent'>
+         <div style="display:flex; flex-direction: row; ">
          <svg id='svg2020' width=900 height=550 ></svg>
+         <div style="width: 300px;height: 550px;">
+            <p>2020 experience is highlighed in blue, with solid and dashed line representing deaths count including and excluding COVID-19 respectively. Experience from 2017 to 2019 is marked in grey for comparison. </p>
+            <p>2020 is an anomaly year due to COVID-19 outbreak. First quarter followed the same pattern as previous years. However, excess deaths were recorded starting week 12, which was the start of the outbreak in United States. </p>
+            <p>After excluding COVID-19 deaths (dashed line), there's still excess deaths observed since start of pandemic. </p>
+            <p>The rest of the excess deaths could be COVID-19 or other causes. However, it is hard to tell without massive COVID-19 testing. </p>
+         </div>
       </div>
+      </div>
+
       <div id="tooltip1" class="hidden tooltip">
          <div style="margin: 10px;">
             <p><span id="valueWeek">100</span></p>
@@ -89,7 +120,7 @@
             <p><span id="value2020_excl">100</span></p>
          </div>
       </div>
-      <p> Data as of July 22nd, 2020.</p>
+      
       <script>
          async function init(){
          	// data
@@ -112,9 +143,6 @@
          	var margin = {top: 100, right: 60, bottom: 80, left: 100},
          	    width = 900 - margin.left - margin.right,
          	    height = 550 - margin.top - margin.bottom;
-         
-         	// clear svg content
-         	d3.select('#svg2017').html = ""
          
          	//chart title
          	d3.select('#svg2017').append('text')
