@@ -1,481 +1,492 @@
-
 <html>
-<head>
-	<h2>United States: Weekly Number of Deaths Year 2017-20</h2>
-
-	<script src='https://d3js.org/d3.v5.min.js'></script>
-	<style type="text/css">
-	/* Style the tab */
-	.tab {
-	  overflow: hidden;
-	  border: 1px solid #ccc;
-	  background-color: #f1f1f1;
-	}
-
-	/* Style the buttons inside the tab */
-	.tab button {
-	  background-color: inherit;
-	  float: left;
-	  border: none;
-	  outline: none;
-	  cursor: pointer;
-	  padding: 14px 16px;
-	  transition: 0.3s;
-	  font-size: 17px;
-	}
-
-	/* Change background color of buttons on hover */
-	.tab button:hover {
-	  background-color: #ddd;
-	}
-
-	/* Create an active/current tablink class */
-	.tab button.active {
-	  background-color: #ccc;
-	}
-
-	/* Style the tab content */
-	.tabcontent {
-	  display: none;
-	  padding: 6px 12px;
-	  border: 1px solid #ccc;
-	  border-top: none;
-	}
-
-	/* style tooltip */
-	.tooltip {
-	  color: white;
-	  position: absolute;
-	  text-align: left;
-	  width: 150px;
-	  height: 30px;
-	  padding: 2px;
-	  font: 12px sans-serif;
-	  background: rgba(0,0,0,.8);
-	  border: 0px;
-	  pointer-events: none;
-	}
-
-	</style>
-</head>
-
-<body onload='init()'>
-
-<div class="tab">
-  <button class="tablinks" onclick="openSheet(event, 'scene2017')" id="defaultOpen">2017</button>
-  <button class="tablinks" onclick="openSheet(event, 'scene2018')">2018</button>
-  <button class="tablinks" onclick="openSheet(event, 'scene2019')">2019</button>
-  <button class="tablinks" onclick="openSheet(event, 'scene2020')">2020</button>
-</div>
-
-<div id='scene2017' class='tabcontent'>
-	<svg id='svg2017' width=900 height=550 ></svg>
-</div>
-<div id='scene2018' class='tabcontent'>
-	<svg id='svg2018' width=900 height=550 ></svg>
-</div>
-<div id='scene2019' class='tabcontent'>
-	<svg id='svg2019' width=900 height=550 ></svg>
-</div>
-<div id='scene2020' class='tabcontent'>
-	<svg id='svg2020' width=900 height=550 ></svg>
-</div>
-
-<div id="tooltip"></div>
-
-<p> Data as of July 22nd, 2020.</p>
-
-<script>
-
-async function init(){
-	// data
-	const data = await d3.csv('https://raw.githubusercontent.com/jinouy2/jinouy2.github.io/master/data/Excess_Deaths_Associated_with_COVID-19.csv');
-	// const tooltipdata = await d3.
-	console.log(data.length);
-	console.log('Column headers', data.columns);
-	// draw chart of select year
-	render2017(data);
-	render2018(data);
-	render2019(data);
-	render2020(data);
-
-}
-
-
-function render2017(data){
-
-	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 80, left: 100},
-	    width = 900 - margin.left - margin.right,
-	    height = 550 - margin.top - margin.bottom;
-
-	// clear svg content
-	d3.select('#svg2017').html = ""
-
-	//chart title
-	d3.select('#svg2017').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','20px')
-	  .text('Weekly Number of Deaths, Year 2017');
-	d3.select('#svg2017').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','16px')
-	  .text('All Causes');
-
-	// x axis
-	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
-	d3.select('#svg2017').append('g')
-	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
-	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
-	// x axis label
-	d3.select('#svg2017').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
-	  .style('text-anchor','middle')
-	  .text('Week');
-
-	// y axis
-	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
-	d3.select('#svg2017').append('g')
-	  .attr('transform','translate('+margin.left+','+margin.top+')')
-	  .call(d3.axisLeft(y));
-	// y axis label
-	d3.select('#svg2017').append('text')
-	  .attr('transform','rotate(-90)')
-	  .attr('y',margin.left/3)
-	  .attr('x',-margin.top)
-	  .attr('dy','.75em')
-	  .style('text-anchor','end')
-	  .text('Number of Deaths');
-
-	// line with select Year and Outcome
-    d3.select('#svg2017').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2017;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-	// Set tooltip
-	var tooltipdomain = [];
-	for (var i=0; i<52; i++){
-		tooltipdomain.push(i+1);
-	}
-	var xTooltip = d3.scaleBand().domain(tooltopdomain).range([0,width])
-	d3.select('#svg2017').append('g')
-	  .attr('transform','translate('+margin.left+','+margin.top+')')
-	  .selectAll('rect')
-	  .data(data)
-	  .enter()
-	  .append('rect')
-	    .attr('x', function(d))
-
-}
-
-function render2018(data){
-	
-	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 80, left: 100},
-	    width = 900 - margin.left - margin.right,
-	    height = 550 - margin.top - margin.bottom;
-
-	//chart title
-	d3.select('#svg2018').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','20px')
-	  .text('Weekly Number of Deaths, Year 2018');
-	d3.select('#svg2018').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','16px')
-	  .text('All Causes');
-
-	// x axis
-	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
-	d3.select('#svg2018').append('g')
-	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
-	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
-	// x axis label
-	d3.select('#svg2018').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
-	  .style('text-anchor','middle')
-	  .text('Week');
-
-	// y axis
-	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
-	d3.select('#svg2018').append('g')
-	  .attr('transform','translate('+margin.left+','+margin.top+')')
-	  .call(d3.axisLeft(y));
-	// y axis label
-	d3.select('#svg2018').append('text')
-	  .attr('transform','rotate(-90)')
-	  .attr('y',margin.left/3)
-	  .attr('x',-margin.top)
-	  .attr('dy','.75em')
-	  .style('text-anchor','end')
-	  .text('Number of Deaths');
-
-	// line with select Year and Outcome
-    d3.select('#svg2018').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2018;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2018').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2017;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-}
-
-
-function render2019(data){
-	
-	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 80, left: 100},
-	    width = 900 - margin.left - margin.right,
-	    height = 550 - margin.top - margin.bottom;
-
-	//chart title
-	d3.select('#svg2019').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','20px')
-	  .text('Weekly Number of Deaths, Year 2019');
-	d3.select('#svg2019').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','16px')
-	  .text('All Causes');
-
-	// x axis
-	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
-	d3.select('#svg2019').append('g')
-	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
-	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
-	// x axis label
-	d3.select('#svg2019').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
-	  .style('text-anchor','middle')
-	  .text('Week');
-
-	// y axis
-	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
-	d3.select('#svg2019').append('g')
-	  .attr('transform','translate('+margin.left+','+margin.top+')')
-	  .call(d3.axisLeft(y));
-	// y axis label
-	d3.select('#svg2019').append('text')
-	  .attr('transform','rotate(-90)')
-	  .attr('y',margin.left/3)
-	  .attr('x',-margin.top)
-	  .attr('dy','.75em')
-	  .style('text-anchor','end')
-	  .text('Number of Deaths');
-
-	// line with select Year and Outcome
-    d3.select('#svg2019').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2019;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2019').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2018;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2019').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2017;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-}
-
-function render2020(data){
-	
-	// Set the dimensions of the canvas / graph
-	var margin = {top: 100, right: 60, bottom: 80, left: 100},
-	    width = 900 - margin.left - margin.right,
-	    height = 550 - margin.top - margin.bottom;
-	
-	// Tooltip variable
-	var tooltip = d3.select("#tooltip");
-
-	//chart title
-	d3.select('#svg2020').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','20px')
-	  .text('Weekly Number of Deaths, Year 2020');
-	d3.select('#svg2020').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
-	  .style('text-anchor','middle')
-	  .style('font-size','16px')
-	  .text('Including/Excluding COVID-19');
-
-	// x axis
-	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
-	d3.select('#svg2020').append('g')
-	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
-	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
-	// x axis label
-	d3.select('#svg2020').append('text')
-	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
-	  .style('text-anchor','middle')
-	  .text('Week');
-
-	// y axis
-	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
-	d3.select('#svg2020').append('g')
-	  .attr('transform','translate('+margin.left+','+margin.top+')')
-	  .call(d3.axisLeft(y));
-	// y axis label
-	d3.select('#svg2020').append('text')
-	  .attr('transform','rotate(-90)')
-	  .attr('y',margin.left/3)
-	  .attr('x',-margin.top)
-	  .attr('dy','.75em')
-	  .style('text-anchor','end')
-	  .text('Number of Deaths');
-
-
-	var data2020 = [];
-	for (var i=0; i < data.length; i++) {
-		var tmp = {};
-		if (data[i].Year == 2020 && data[i].Outcome == "All causes") {
-			data2020.push(data[i]);
-		}
-	}
-	// console.log(data2020);
-	// line with select Year and Outcome
-    d3.select('#svg2020').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2020;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2020').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2020;})
-			     .filter(function(d){return d.Outcome == 'All causes excluding COVID-19';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .style('stroke-dasharray',('6,6'))
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2020').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2019;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2020').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2018;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-    d3.select('#svg2020').append('g')
-    .attr('transform','translate('+margin.left+','+margin.top+')')
-    .append('path')
-      .datum(data.filter(function(d){return d.Year == 2017;})
-			     .filter(function(d){return d.Outcome == 'All causes';}))
-      .attr('fill', 'none')
-      .attr('stroke', 'grey')
-      .style('opacity',0.5)
-      .attr('stroke-width', 3)
-      .attr('d', d3.line()
-		.x(function(d) {return x(parseInt(d.Week)); }) 
-		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
-
-
-
-}
-
-function openSheet(evt, sheetName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  document.getElementById(sheetName).style.display = "block";
-  evt.currentTarget.className += " active";
-}
-
-// Get the element with id="defaultOpen" and click on it
-document.getElementById("defaultOpen").click();
-</script>
-</body>
+   <head>
+      <h2>United States: Weekly Number of Deaths Year 2017-20</h2>
+      <script src='https://d3js.org/d3.v5.min.js'></script>
+      <style type="text/css">
+         /* Style the tab */
+         .tab {
+         overflow: hidden;
+         border: 1px solid #ccc;
+         background-color: #f1f1f1;
+         }
+         /* Style the buttons inside the tab */
+         .tab button {
+         background-color: inherit;
+         float: left;
+         border: none;
+         outline: none;
+         cursor: pointer;
+         padding: 14px 16px;
+         transition: 0.3s;
+         font-size: 17px;
+         }
+         /* Change background color of buttons on hover */
+         .tab button:hover {
+         background-color: #ddd;
+         }
+         /* Create an active/current tablink class */
+         .tab button.active {
+         background-color: #ccc;
+         }
+         /* Style the tab content */
+         .tabcontent {
+         display: none;
+         padding: 6px 12px;
+         border: 1px solid #ccc;
+         border-top: none;
+         }
+         .tooltip {
+         position: absolute;
+         font-size: 12px;
+         width:  auto;
+         height: auto;
+         pointer-events: none;
+         background-color: #FFFFE0;
+         border:1px solid #DCA;
+         border-radius:8px;
+         }
+         .tooltip.hidden {
+           display: none;
+         }
+         .tooltip p {
+           margin: 0;
+           font-family: Ariel;
+           font-size: 12px;
+           line-height: 13px;
+         }
+         rect {
+         opacity: 0.0;
+         stroke: 0px;
+         }
+      </style>
+   </head>
+   <body onload='init()'>
+      <div class="tab">
+         <button class="tablinks" onclick="openSheet(event, 'scene2017')" id="defaultOpen">2017</button>
+         <button class="tablinks" onclick="openSheet(event, 'scene2018')">2018</button>
+         <button class="tablinks" onclick="openSheet(event, 'scene2019')">2019</button>
+         <button class="tablinks" onclick="openSheet(event, 'scene2020')">2020</button>
+      </div>
+      <div id='scene2017' class='tabcontent'>
+         <svg id='svg2017' width=900 height=550 ></svg>
+      </div>
+      <div id='scene2018' class='tabcontent'>
+         <svg id='svg2018' width=900 height=550 ></svg>
+      </div>
+      <div id='scene2019' class='tabcontent'>
+         <svg id='svg2019' width=900 height=550 ></svg>
+      </div>
+      <div id='scene2020' class='tabcontent'>
+         <svg id='svg2020' width=900 height=550 ></svg>
+      </div>
+      <div id="tooltip1" class="hidden tooltip">
+         <div style="margin: 10px;">
+            <p><span id="valueWeek">100</span></p>
+            <p><span id="value2017">100</span></p>
+            <p><span id="value2018">100</span></p>
+            <p><span id="value2019">100</span></p>
+            <p><span id="value2020">100</span></p>
+            <p><span id="value2020_excl">100</span></p>
+         </div>
+      </div>
+      <p> Data as of July 22nd, 2020.</p>
+      <script>
+         async function init(){
+         	// data
+         	const data = await d3.csv('https://raw.githubusercontent.com/jinouy2/jinouy2.github.io/master/data/Excess_Deaths_Associated_with_COVID-19.csv');
+         	const tooltipdata = await d3.csv('https://raw.githubusercontent.com/jinouy2/jinouy2.github.io/master/data/Tooltip_data.csv');
+         	console.log(tooltipdata.length);
+         	console.log('Column headers', tooltipdata.columns);
+         	// draw chart of select year
+         	render2017(data);
+         	render2018(data);
+         	render2019(data);
+         	render2020(data,tooltipdata);
+         
+         }
+         
+         
+         function render2017(data){
+         
+         	// Set the dimensions of the canvas / graph
+         	var margin = {top: 100, right: 60, bottom: 80, left: 100},
+         	    width = 900 - margin.left - margin.right,
+         	    height = 550 - margin.top - margin.bottom;
+         
+         	// clear svg content
+         	d3.select('#svg2017').html = ""
+         
+         	//chart title
+         	d3.select('#svg2017').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','20px')
+         	  .text('Weekly Number of Deaths, Year 2017');
+         	d3.select('#svg2017').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','16px')
+         	  .text('All Causes');
+         
+         	// x axis
+         	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
+         	d3.select('#svg2017').append('g')
+         	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
+         	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
+         	// x axis label
+         	d3.select('#svg2017').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
+         	  .style('text-anchor','middle')
+         	  .text('Week');
+         
+         	// y axis
+         	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
+         	d3.select('#svg2017').append('g')
+         	  .attr('transform','translate('+margin.left+','+margin.top+')')
+         	  .call(d3.axisLeft(y));
+         	// y axis label
+         	d3.select('#svg2017').append('text')
+         	  .attr('transform','rotate(-90)')
+         	  .attr('y',margin.left/3)
+         	  .attr('x',-margin.top)
+         	  .attr('dy','.75em')
+         	  .style('text-anchor','end')
+         	  .text('Number of Deaths');
+         
+         	// line with select Year and Outcome
+             d3.select('#svg2017').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2017;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'steelblue')
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         }
+         
+         function render2018(data){
+         	
+         	// Set the dimensions of the canvas / graph
+         	var margin = {top: 100, right: 60, bottom: 80, left: 100},
+         	    width = 900 - margin.left - margin.right,
+         	    height = 550 - margin.top - margin.bottom;
+         
+         	//chart title
+         	d3.select('#svg2018').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','20px')
+         	  .text('Weekly Number of Deaths, Year 2018');
+         	d3.select('#svg2018').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','16px')
+         	  .text('All Causes');
+         
+         	// x axis
+         	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
+         	d3.select('#svg2018').append('g')
+         	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
+         	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
+         	// x axis label
+         	d3.select('#svg2018').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
+         	  .style('text-anchor','middle')
+         	  .text('Week');
+         
+         	// y axis
+         	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
+         	d3.select('#svg2018').append('g')
+         	  .attr('transform','translate('+margin.left+','+margin.top+')')
+         	  .call(d3.axisLeft(y));
+         	// y axis label
+         	d3.select('#svg2018').append('text')
+         	  .attr('transform','rotate(-90)')
+         	  .attr('y',margin.left/3)
+         	  .attr('x',-margin.top)
+         	  .attr('dy','.75em')
+         	  .style('text-anchor','end')
+         	  .text('Number of Deaths');
+         
+         	// line with select Year and Outcome
+             d3.select('#svg2018').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2018;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'steelblue')
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2018').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2017;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         }
+         
+         
+         function render2019(data){
+         	
+         	// Set the dimensions of the canvas / graph
+         	var margin = {top: 100, right: 60, bottom: 80, left: 100},
+         	    width = 900 - margin.left - margin.right,
+         	    height = 550 - margin.top - margin.bottom;
+         
+         	//chart title
+         	d3.select('#svg2019').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','20px')
+         	  .text('Weekly Number of Deaths, Year 2019');
+         	d3.select('#svg2019').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','16px')
+         	  .text('All Causes');
+         
+         	// x axis
+         	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
+         	d3.select('#svg2019').append('g')
+         	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
+         	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
+         	// x axis label
+         	d3.select('#svg2019').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
+         	  .style('text-anchor','middle')
+         	  .text('Week');
+         
+         	// y axis
+         	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
+         	d3.select('#svg2019').append('g')
+         	  .attr('transform','translate('+margin.left+','+margin.top+')')
+         	  .call(d3.axisLeft(y));
+         	// y axis label
+         	d3.select('#svg2019').append('text')
+         	  .attr('transform','rotate(-90)')
+         	  .attr('y',margin.left/3)
+         	  .attr('x',-margin.top)
+         	  .attr('dy','.75em')
+         	  .style('text-anchor','end')
+         	  .text('Number of Deaths');
+         
+         	// line with select Year and Outcome
+             d3.select('#svg2019').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2019;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'steelblue')
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2019').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2018;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2019').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2017;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         }
+         
+         function render2020(data,tooltipdata){
+         	
+         	// Set the dimensions of the canvas / graph
+         	var margin = {top: 100, right: 60, bottom: 80, left: 100},
+         	    width = 900 - margin.left - margin.right,
+         	    height = 550 - margin.top - margin.bottom;
+         	
+         	// Tooltip variable
+         	var tooltip = d3.select("#tooltip");
+         
+         	//chart title
+         	d3.select('#svg2020').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top/2)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','20px')
+         	  .text('Weekly Number of Deaths, Year 2020');
+         	d3.select('#svg2020').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(margin.top-25)+')')
+         	  .style('text-anchor','middle')
+         	  .style('font-size','16px')
+         	  .text('Including/Excluding COVID-19');
+         
+         	// x axis
+         	var x = d3.scaleLinear().domain([0,52]).range([0,width]);
+         	d3.select('#svg2020').append('g')
+         	  .attr('transform', 'translate('+margin.left+','+(height+margin.top)+')')
+         	  .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,24,28,32,36,40,44,48,52]));
+         	// x axis label
+         	d3.select('#svg2020').append('text')
+         	  .attr('transform', 'translate('+(width/2+margin.left)+','+(height+margin.top+40)+')')
+         	  .style('text-anchor','middle')
+         	  .text('Week');
+         
+         	// y axis
+         	var y = d3.scaleLinear().domain([40000,80000]).range([height,0]);
+         	d3.select('#svg2020').append('g')
+         	  .attr('transform','translate('+margin.left+','+margin.top+')')
+         	  .call(d3.axisLeft(y));
+         	// y axis label
+         	d3.select('#svg2020').append('text')
+         	  .attr('transform','rotate(-90)')
+         	  .attr('y',margin.left/3)
+         	  .attr('x',-margin.top)
+         	  .attr('dy','.75em')
+         	  .style('text-anchor','end')
+         	  .text('Number of Deaths');
+         
+         	// line with select Year and Outcome
+             d3.select('#svg2020').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2020;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'steelblue')
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2020').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2020;})
+         			     .filter(function(d){return d.Outcome == 'All causes excluding COVID-19';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'steelblue')
+               .style('stroke-dasharray',('6,6'))
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2020').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2019;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2020').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2018;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+             d3.select('#svg2020').append('g')
+             .attr('transform','translate('+margin.left+','+margin.top+')')
+             .append('path')
+               .datum(data.filter(function(d){return d.Year == 2017;})
+         			     .filter(function(d){return d.Outcome == 'All causes';}))
+               .attr('fill', 'none')
+               .attr('stroke', 'grey')
+               .style('opacity',0.5)
+               .attr('stroke-width', 3)
+               .attr('d', d3.line()
+         		.x(function(d) {return x(parseInt(d.Week)); }) 
+         		.y(function(d) {return y(parseInt(d.Observed_Number)); }));
+         
+         	// Set tooltip
+         	var tooltipdomain = [];
+         	for (var i=0; i<52; i++){
+         		tooltipdomain.push(i+1);
+         	}
+         	var x2 = d3.scaleBand().domain(tooltipdomain).range([0,width])
+         	d3.select('#svg2020').append('g')
+         	  .attr('transform','translate('+margin.left+','+margin.top+')')
+         	  .selectAll('rect')
+         	  .data(tooltipdata)
+         	  .enter()
+         	  .append('rect')
+         	    .attr('x', function(d) {return x2(d.Week)+7;})
+         	    .attr('y', 0)
+         	    .attr('width',width/53)
+         	    .attr('height',height)
+         	    .on("mouseover", function(d) {
+         	    	var xPosition = d3.event.pageX + 15;
+         	    	var yPosition = d3.event.pageY - 28;
+         	    	d3.select("#tooltip1")
+                        .style("left", xPosition + "px")
+                        .style("top", yPosition + "px");     
+                     d3.select("#tooltip1").select("#valueWeek").text("WEEK " + d.Week);
+                     d3.select("#tooltip1").select("#value2017").text("2017, all causes: " + d["2017"]);
+                     d3.select("#tooltip1").select("#value2018").text("2018, all causes: " + d["2018"]);
+                     d3.select("#tooltip1").select("#value2019").text("2019, all causes: " + d["2019"]);
+                     d3.select("#tooltip1").select("#value2020").text("2020, all causes: " + d["2020"]);
+                     d3.select("#tooltip1").select("#value2020_excl").text("2020, excl COVID-19: " + d["2020_Excluding_COVID"]);
+                     d3.select("#tooltip1").classed("hidden", false);
+                    })
+         	   .on("mouseout", function(d) {
+         	   		console.log(d);
+         			d3.select("#tooltip1").classed("hidden", true);
+         	   });
+         }
+         
+         function openSheet(evt, sheetName) {
+           var i, tabcontent, tablinks;
+           tabcontent = document.getElementsByClassName("tabcontent");
+           for (i = 0; i < tabcontent.length; i++) {
+             tabcontent[i].style.display = "none";
+           }
+           tablinks = document.getElementsByClassName("tablinks");
+           for (i = 0; i < tablinks.length; i++) {
+             tablinks[i].className = tablinks[i].className.replace(" active", "");
+           }
+           document.getElementById(sheetName).style.display = "block";
+           evt.currentTarget.className += " active";
+         }
+         
+         // Get the element with id="defaultOpen" and click on it
+         document.getElementById("defaultOpen").click();
+      </script>
+   </body>
 </html>
-
